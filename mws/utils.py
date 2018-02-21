@@ -33,7 +33,10 @@ class object_dict(dict):
 
     def __getattr__(self, item):
 
-        d = self.__getitem__(item)
+        try:
+            d = self.__getitem__(item)
+        except KeyError:
+            raise AttributeError
 
         if isinstance(d, dict) and 'value' in d and len(d) == 1:
             return d['value']
@@ -49,6 +52,23 @@ class object_dict(dict):
 
     def getvalue(self, item, value=None):
         return self.get(item, {}).get('value', value)
+
+    def to_plain(self):
+        if len(self.keys()) == 1 and 'value' in self.keys():
+            return self['value']
+
+        plain_dict = {}
+
+        for key in self.keys():
+            if key == "value" and isinstance(self[key], str) and len(self[key].strip()) == 0:
+                continue
+
+            if isinstance(self[key], object_dict):
+                plain_dict[key] = self[key].to_plain()
+            else:
+                plain_dict[key] = self[key]
+
+        return plain_dict
 
 
 class xml2dict(object):
