@@ -65,6 +65,13 @@ class object_dict(dict):
 
             if isinstance(self[key], object_dict):
                 plain_dict[key] = self[key].to_plain()
+            elif isinstance(self[key], list):
+                plain_dict[key] = [
+                    sub_value.to_plain()
+                    if isinstance(sub_value, object_dict)
+                    else sub_value
+                    for sub_value in self[key]
+                ]
             else:
                 plain_dict[key] = self[key]
 
